@@ -1,8 +1,9 @@
-name: Docker Image CI
+# Increase number to trigger CI -> 1
+name: The showdown
 on:
   push: {}
 jobs:
-  build:
+  build_no_cache:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -15,3 +16,4 @@ jobs:
     - run: docker build . -t thing
     - run: sudo chmod a+rw -R /var/lib/docker
       if: always()
+
