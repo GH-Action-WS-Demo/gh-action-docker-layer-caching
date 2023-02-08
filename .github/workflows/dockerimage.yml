@@ -3,7 +3,8 @@ name: The showdown
 on:
   push: {}
 jobs:
-  build_no_cache:
+
+  build_with_registry:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -11,9 +12,11 @@ jobs:
     - id: cache-docker
       uses: actions/cache@v1
       with:
-        path: /var/lib/docker
-        key: cache-var-lib-docker-${{ hashFiles('Dockerfile') }}
+        path: /tmp/docker-registry
+        key: docker-registry-${{ hashFiles('Dockerfile') }}
+    - run: docker run -d -p 5000:5000 --restart=always --name registry -v /tmp/docker-registry:/var/lib/registry registry:2
+    - run: npx wait-on tcp:5000 && docker pull localhost:5000/thing && docker tag localhost:5000/thing thing || true
     - run: docker build . -t thing
-    - run: sudo chmod a+rw -R /var/lib/docker
-      if: always()
+    - run: docker tag thing localhost:5000/thing && docker push localhost:5000/thing || true
+      if: steps.cache.outputs.cache-hit != 'true'
 
