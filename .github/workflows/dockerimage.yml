@@ -1,11 +1,14 @@
-name: Docker Image CI
+# Increase number to trigger CI -> 1
+name: The showdown
 on:
   push: {}
 jobs:
+
   build_with_registry:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - run: sudo chmod a+rw -R /var/lib/docker
     - id: cache-docker
       uses: actions/cache@v1
       with:
@@ -16,3 +19,4 @@ jobs:
     - run: docker build . -t thing
     - run: docker tag thing localhost:5000/thing && docker push localhost:5000/thing || true
       if: steps.cache.outputs.cache-hit != 'true'
+
